@@ -1,7 +1,7 @@
 Video Zoom Mod
 =============================
 
-Enable Video Zoom Mod & Set the Maximum Zoom Factor.
+Enable Video Zoom Feature & Set the Maximum Zoom Factor.
 
 Supported iOS Versions
 =============================
