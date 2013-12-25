@@ -1,0 +1,9 @@
+Package: org.thebigboss.videozoommod
+Name: Video Zoom Mod
+Depends: mobilesubstrate, preferenceloader, firmware (>= 7.0)
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Enable Video Zoom and set your maximum zoom factor.
+Author: PoomSmart
+Section: Tweaks
+Icon: file:///Library/PreferenceLoader/Preferences/VZM/VZM@2x.png
