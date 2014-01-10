@@ -21,10 +21,11 @@
         <key>label</key>
         <string>Maximum Zoom Factor</string>
         <key>footerText</key>
-        <string>Video Zoom is enabled by default with this tweak installed, now you can just set the maximum zoom factor because Apple gives us only 3.0
-If the factor is set incorrectly, like 0.0, the tweak will change it to 3.0, it must be larger than 1.0
+        <string>Video Zoom is enabled by default with this tweak installed, now you can just set the maximum zoom factor (Apple gives us only 3.0x by default)
+If the factor is set incorrectly, like 0.0x, the tweak will change it to 5.0x (tweak default value), it must be larger than 1.0x
+The change takes effect immediately.
 
-© 2013 Thuchapol Unprasert
+© 2013 - 2014 Thuchapol Unprasert
 (@PoomSmart)</string>
       </dict>
       <dict>
@@ -39,9 +40,7 @@ If the factor is set incorrectly, like 0.0, the tweak will change it to 3.0, it 
 		<key>key</key>
 		<string>MaxFactor</string>
 		<key>placeholder</key>
-		<string>Enter factor</string>
-		<key>isNumeric</key>
-		<true/>
+		<string>Enter factor number</string>
 	   </dict>
     </array>
   </dict>
