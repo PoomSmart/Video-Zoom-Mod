@@ -1,4 +1,5 @@
 #import <substrate.h>
+#define PLIST_PATH @"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"
 
 @class AVCaptureDeviceFormat, PLCameraController, UIImagePickerController;
 
@@ -34,13 +35,13 @@ static BOOL _logos_method$_ungrouped$AVCaptureDeviceFormat$supportsVideoZoom(AVC
 
 static float _logos_method$_ungrouped$PLCameraController$maximumZoomFactorForDevice$(PLCameraController* self, SEL _cmd, id device)
 {
-	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"];
+	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
 	if (dict == nil || [dict objectForKey:@"MaxFactor"] == nil)
-		return 3.0f;
+		return 5.0f;
 	float factor = [[dict objectForKey:@"MaxFactor"] floatValue];
 	if (factor > 1)
 		return factor;
-	return 3.0f;
+	return 5.0f;
 }
 
 static float _logos_method$_ungrouped$PLCameraController$minimumZoomFactorForDevice$(PLCameraController* self, SEL _cmd, id device)
@@ -50,13 +51,13 @@ static float _logos_method$_ungrouped$PLCameraController$minimumZoomFactorForDev
 
 static float _logos_method$_ungrouped$AVCaptureDeviceFormat$videoMaxZoomFactor(AVCaptureDeviceFormat* self, SEL _cmd)
 {
-	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"];
+	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
 	if (dict == nil || [dict objectForKey:@"MaxFactor"] == nil)
-		return 3.0f;
+		return 5.0f;
 	float factor = [[dict objectForKey:@"MaxFactor"] floatValue];
 	if (factor > 1)
 		return factor;
-	return 3.0f;
+	return 5.0f;
 }
 
 static void _logos_method$_ungrouped$UIImagePickerController$viewWillAppear$(UIImagePickerController* self, SEL _cmd, BOOL view) {
