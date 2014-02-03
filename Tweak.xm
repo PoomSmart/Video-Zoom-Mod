@@ -3,6 +3,15 @@
 
 #define PLIST_PATH @"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"
 
+@interface PLCameraController
+- (CGFloat)maximumZoomFactorForDevice:(id)device;
+@end
+
+@interface PLCameraView
+- (int)cameraDevice;
+- (void)_setSwipeToModeSwitchEnabled:(BOOL)enabled;
+@end
+
 %group AVCaptureDeviceFormat
 
 %hook AVCaptureDeviceFormat
@@ -23,11 +32,11 @@
 {
 	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
 	if (dict == nil || [dict objectForKey:@"MaxFactor"] == nil)
-		return 5.0;
+		return 5;
 	CGFloat factor = (CGFloat)[[dict objectForKey:@"MaxFactor"] floatValue];
 	if (factor > 1)
 		return factor;
-	return 5.0;
+	return 5;
 }
 
 
@@ -43,16 +52,41 @@
 {
 	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
 	if (dict == nil || [dict objectForKey:@"MaxFactor"] == nil)
-		return 5.0;
+		return 5;
 	CGFloat factor = (CGFloat)[[dict objectForKey:@"MaxFactor"] floatValue];
 	if (factor > 1)
 		return factor;
-	return 5.0;
+	return 5;
 }
 
 - (CGFloat)minimumZoomFactorForDevice:(id)device
 {
-	return 1.0;
+	return 1;
+}
+
+%end
+
+%end
+
+%group PLCameraView
+
+%hook PLCameraView
+
+- (BOOL)_zoomIsAllowed
+{
+	return self.cameraDevice == 1 ? YES : %orig;
+}
+
+- (void)_startZoomSliderTimer
+{
+	[self _setSwipeToModeSwitchEnabled:NO];
+	%orig;
+}
+
+- (void)_stopZoomSliderTimer
+{
+	%orig;
+	[self _setSwipeToModeSwitchEnabled:YES];
 }
 
 %end
@@ -70,18 +104,39 @@
 		%init(AVCaptureDeviceFormat);
 	if (objc_getClass("PLCameraController") != NULL)
 		%init(PLCameraController);
+	if (objc_getClass("PLCameraView") != NULL)
+		%init(PLCameraView);
 }
 
 %end
 
 %end
 
+SInt32 (*old_MGGetSInt32Answer)(CFStringRef);
+SInt32 replaced_MGGetSInt32Answer(CFStringRef string)
+{
+	#define k(key) CFEqual(string, CFSTR(key))
+	if (k("RearFacingCameraMaxVideoZoomFactor") || k("FrontFacingCameraMaxVideoZoomFactor")) {
+		NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
+		if (dict == nil || [dict objectForKey:@"MaxFactor"] == nil)
+			return 5;
+		CGFloat factor = (CGFloat)[[dict objectForKey:@"MaxFactor"] floatValue];
+		if (factor > 1)
+			return roundf(factor);
+		return 5;
+	}
+	return old_MGGetSInt32Answer(string);
+}
+
 
 %ctor {
+	MSHookFunction(((void *)MSFindSymbol(NULL, "_MGGetSInt32Answer")), (void *)replaced_MGGetSInt32Answer, (void **)&old_MGGetSInt32Answer);
 	if (objc_getClass("AVCaptureDeviceFormat") != NULL)
 		%init(AVCaptureDeviceFormat);
 	if (objc_getClass("PLCameraController") != NULL)
 		%init(PLCameraController);
+	if (objc_getClass("PLCameraView") != NULL)
+		%init(PLCameraView);
 	if (objc_getClass("UIImagePickerController") != NULL)
 		%init(UIImagePickerController);
 }
