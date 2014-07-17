@@ -22,11 +22,7 @@
         <string>Maximum Zoom Factor</string>
         <key>footerText</key>
         <string>Video Zoom is enabled by default with this tweak installed, now you can just set the maximum zoom factor (Apple gives us only 3.0x by default)
-If the factor is set incorrectly, like 0.0x, the tweak will change it to 5.0x (tweak default value), it must be larger than 1.0x
-The change takes effect immediately.
-
-© 2013 - 2014 Thuchapol Unprasert
-(@PoomSmart)</string>
+If the factor is set incorrectly, like 0.0x, the tweak will change it to 5.0x (tweak default value), it must be larger than 1.0x</string>
       </dict>
       <dict>
 		<key>cell</key>
@@ -42,6 +38,29 @@ The change takes effect immediately.
 		<key>placeholder</key>
 		<string>Enter factor number</string>
 	   </dict>
+	   <dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>label</key>
+        <string>Auto Swipe</string>
+        <key>footerText</key>
+        <string>If this enabled, you cannot perform swiping to change camera mode while the zoom slider is showing.
+
+© 2013 - 2014 Thuchapol Unprasert
+(@PoomSmart)</string>
+      </dict>
+      <dict>
+        <key>cell</key>
+        <string>PSSwitchCell</string>
+        <key>default</key>
+        <false/>
+        <key>defaults</key>
+        <string>com.PS.VideoZoomMod</string>
+        <key>key</key>
+        <string>AutoNoSwipe</string>
+        <key>label</key>
+        <string>Enabled</string>
+      </dict>
     </array>
   </dict>
 </plist>

@@ -2,6 +2,7 @@
 // IMPORTANT: This tweak is compiled from the edited logos.pl, which the "re-%init error" is removed.
 
 #define PLIST_PATH @"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"
+#define AutoNoSwipe [[[NSDictionary dictionaryWithContentsOfFile:PLIST_PATH] objectForKey:@"AutoNoSwipe"] boolValue]
 
 @interface PLCameraController
 - (CGFloat)maximumZoomFactorForDevice:(id)device;
@@ -77,16 +78,26 @@
 	return self.cameraDevice == 1 ? YES : %orig;
 }
 
-- (void)_startZoomSliderTimer
+%end
+
+%end
+
+%group CAMZoomSlider
+
+%hook CAMZoomSlider
+
+- (void)makeVisible
 {
-	[self _setSwipeToModeSwitchEnabled:NO];
+	if (AutoNoSwipe)
+		[[self delegate] _setSwipeToModeSwitchEnabled:NO];
 	%orig;
 }
 
-- (void)_stopZoomSliderTimer
+- (void)_hideZoomSlider:(id)arg
 {
+	if (AutoNoSwipe)
+		[[self delegate] _setSwipeToModeSwitchEnabled:YES];
 	%orig;
-	[self _setSwipeToModeSwitchEnabled:YES];
 }
 
 %end
@@ -106,6 +117,8 @@
 		%init(PLCameraController);
 	if (objc_getClass("PLCameraView") != NULL)
 		%init(PLCameraView);
+	if (objc_getClass("CAMZoomSlider") != NULL)
+		%init(CAMZoomSlider);
 }
 
 %end
@@ -137,6 +150,8 @@ SInt32 replaced_MGGetSInt32Answer(CFStringRef string)
 		%init(PLCameraController);
 	if (objc_getClass("PLCameraView") != NULL)
 		%init(PLCameraView);
+	if (objc_getClass("CAMZoomSlider") != NULL)
+		%init(CAMZoomSlider);
 	if (objc_getClass("UIImagePickerController") != NULL)
 		%init(UIImagePickerController);
 }
