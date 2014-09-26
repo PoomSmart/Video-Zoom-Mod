@@ -1,4 +1,5 @@
 #import <substrate.h>
+#import "../PS.h"
 // IMPORTANT: This tweak is compiled from the edited logos.pl, which the "re-%init error" is removed.
 
 #define PLIST_PATH @"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"
