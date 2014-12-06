@@ -44,10 +44,7 @@ If the factor is set incorrectly, like 0.0x, the tweak will change it to 5.0x (t
         <key>label</key>
         <string>Auto Swipe</string>
         <key>footerText</key>
-        <string>If this enabled, you cannot perform swiping to change camera mode while the zoom slider is showing.
-
-© 2013 - 2014 Thuchapol Unprasert
-(@PoomSmart)</string>
+        <string>If this enabled, you cannot perform swiping to change camera mode while the zoom slider is showing.</string>
       </dict>
       <dict>
         <key>cell</key>
@@ -60,6 +57,15 @@ If the factor is set incorrectly, like 0.0x, the tweak will change it to 5.0x (t
         <string>AutoNoSwipe</string>
         <key>label</key>
         <string>Enabled</string>
+      </dict>
+      <dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>footerAlignment</key>
+        <integer>1</integer>
+        <key>footerText</key>
+        <string>© 2013 - 2014 Thuchapol Unprasert
+(@PoomSmart)</string>
       </dict>
     </array>
   </dict>
