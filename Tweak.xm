@@ -2,7 +2,7 @@
 #import "../PS.h"
 
 #define PLIST_PATH @"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"
-#define AutoNoSwipe [[[NSDictionary dictionaryWithContentsOfFile:PLIST_PATH] objectForKey:@"AutoNoSwipe"] boolValue]
+#define AutoNoSwipe [[NSDictionary dictionaryWithContentsOfFile:PLIST_PATH][@"AutoNoSwipe"] boolValue]
 
 @interface PLCameraController
 - (CGFloat)maximumZoomFactorForDevice:(id)device;
@@ -27,12 +27,25 @@ static CGFloat videoMaxZoomFactor()
 	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
 	id value = dict[@"MaxFactor"];
 	if (dict == nil || value == nil)
-		return 5;
-	CGFloat factor = (CGFloat)[value floatValue];
-	if (factor > 1)
+		return 5.0f;
+	CGFloat factor = [value floatValue];
+	if (factor > 1.0f)
 		return factor;
-	return 5;
+	return 5.0f;
 }
+
+%group AVCaptureDeviceFormat_pre8
+
+%hook AVCaptureDeviceFormat
+
+- (BOOL)supportsVideoZoom
+{
+	return YES;
+}
+
+%end
+
+%end
 
 %group AVCaptureDeviceFormat
 
@@ -43,16 +56,10 @@ static CGFloat videoMaxZoomFactor()
 	return YES;
 }
 
-- (BOOL)supportsVideoZoom
-{
-	return YES;
-}
-
 - (CGFloat)videoMaxZoomFactor
 {
 	return videoMaxZoomFactor();
 }
-
 
 %end
 
@@ -93,7 +100,7 @@ static CGFloat videoMaxZoomFactor()
 
 - (CGFloat)minimumZoomFactorForDevice:(id)device
 {
-	return 1;
+	return 1.0f;
 }
 
 %end
@@ -111,7 +118,7 @@ static CGFloat videoMaxZoomFactor()
 
 - (CGFloat)minimumZoomFactorForDevice:(id)device
 {
-	return 1;
+	return 1.0f;
 }
 
 %end
@@ -166,6 +173,24 @@ static CGFloat videoMaxZoomFactor()
 
 %end
 
+%group FigCaptureSourceFormat
+
+%hook FigCaptureSourceFormat
+
+- (BOOL)isVideoZoomSupported
+{
+	return YES;
+}
+
+- (BOOL)isVideoZoomDynamicSensorCropSupported
+{
+	return YES;
+}
+
+%end
+
+%end
+
 extern "C" SInt32 MGGetSInt32Answer(CFStringRef);
 MSHook(SInt32, MGGetSInt32Answer, CFStringRef string)
 {
@@ -174,24 +199,39 @@ MSHook(SInt32, MGGetSInt32Answer, CFStringRef string)
 		SInt32 factor = roundf(videoMaxZoomFactor());
 		return factor;
 	}
-	return old_MGGetSInt32Answer(string);
+	return _MGGetSInt32Answer(string);
 }
 
+BOOL is_mediaserverd()
+{
+	NSArray *args = [[NSClassFromString(@"NSProcessInfo") processInfo] arguments];
+	NSUInteger count = [args count];
+	if (count != 0) {
+		NSString *executablePath = [args objectAtIndex:0];
+		return [[executablePath lastPathComponent] isEqualToString:@"mediaserverd"];
+	}
+	return NO;
+}
 
 %ctor
 {
-	dlopen("/System/Library/Frameworks/AVFoundation.framework/AVFoundation", RTLD_LAZY);
-	dlopen("/System/Library/PrivateFrameworks/PhotoLibrary.framework/PhotoLibrary", RTLD_LAZY);
-	dlopen("/System/Library/PrivateFrameworks/CameraKit.framework/CameraKit", RTLD_LAZY);
-	MSHookFunction(MGGetSInt32Answer MSHake(MGGetSInt32Answer));
-	if (isiOS8) {
-		%init(AVCaptureDeviceFormat_FigRecorder);
-		%init(CAMCaptureController);
-		%init(CAMCameraView);
-	} else {
+	dlopen("/System/Library/PrivateFrameworks/Celestial.framework/Celestial", RTLD_LAZY);
+	%init(FigCaptureSourceFormat);
+	if (!is_mediaserverd()) {
+		dlopen("/System/Library/Frameworks/AVFoundation.framework/AVFoundation", RTLD_LAZY);
+		dlopen("/System/Library/PrivateFrameworks/PhotoLibrary.framework/PhotoLibrary", RTLD_LAZY);
+		dlopen("/System/Library/PrivateFrameworks/CameraKit.framework/CameraKit", RTLD_LAZY);
+		MSHookFunction(MGGetSInt32Answer, MSHake(MGGetSInt32Answer));
+		if (isiOS8Up) {
+			%init(AVCaptureDeviceFormat_FigRecorder);
+			%init(CAMCaptureController);
+			%init(CAMCameraView);
+		} else {
+			%init(AVCaptureDeviceFormat_pre8);
+			%init(PLCameraController);
+			%init(PLCameraView);
+		}
 		%init(AVCaptureDeviceFormat);
-		%init(PLCameraController);
-		%init(PLCameraView);
+		%init(CAMZoomSlider);
 	}
-	%init(CAMZoomSlider);
 }
