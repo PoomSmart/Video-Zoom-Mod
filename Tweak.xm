@@ -4,24 +4,6 @@
 #define PLIST_PATH @"/var/mobile/Library/Preferences/com.PS.VideoZoomMod.plist"
 #define AutoNoSwipe [[NSDictionary dictionaryWithContentsOfFile:PLIST_PATH][@"AutoNoSwipe"] boolValue]
 
-@interface PLCameraController
-- (CGFloat)maximumZoomFactorForDevice:(id)device;
-@end
-
-@interface CAMCaptureController
-- (CGFloat)maximumZoomFactorForDevice:(id)device;
-@end
-
-@interface PLCameraView
-- (int)cameraDevice;
-- (void)_setSwipeToModeSwitchEnabled:(BOOL)enabled;
-@end
-
-@interface CAMCameraView
-- (int)cameraDevice;
-- (void)_setSwipeToModeSwitchEnabled:(BOOL)enabled;
-@end
-
 static CGFloat videoMaxZoomFactor()
 {
 	NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:PLIST_PATH];
@@ -131,7 +113,13 @@ static CGFloat videoMaxZoomFactor()
 
 - (BOOL)_zoomIsAllowed
 {
-	return self.cameraDevice == 1 ? YES : %orig;
+	if (self.cameraDevice == 1) {
+		MSHookIvar<NSInteger>([%c(PLCameraController) sharedInstance], "_cameraDevice") = 0;
+		BOOL orig = %orig;
+		MSHookIvar<NSInteger>([%c(PLCameraController) sharedInstance], "_cameraDevice") = 1;
+		return orig;
+	}
+	return %orig;
 }
 
 %end
@@ -144,7 +132,13 @@ static CGFloat videoMaxZoomFactor()
 
 - (BOOL)_zoomIsAllowed
 {
-	return self.cameraDevice == 1 ? YES : %orig;
+	if (self.cameraDevice == 1) {
+		MSHookIvar<NSInteger>([%c(CAMCaptureController) sharedInstance], "_cameraDevice") = 0;
+		BOOL orig = %orig;
+		MSHookIvar<NSInteger>([%c(CAMCaptureController) sharedInstance], "_cameraDevice") = 1;
+		return orig;
+	}
+	return %orig;
 }
 
 %end
@@ -158,14 +152,14 @@ static CGFloat videoMaxZoomFactor()
 - (void)makeVisible
 {
 	if (AutoNoSwipe)
-		[[self delegate] _setSwipeToModeSwitchEnabled:NO];
+		[(NSObject <cameraViewDelegate> *)[self delegate] _setSwipeToModeSwitchEnabled:NO];
 	%orig;
 }
 
 - (void)_hideZoomSlider:(id)arg
 {
 	if (AutoNoSwipe)
-		[[self delegate] _setSwipeToModeSwitchEnabled:YES];
+		[(NSObject <cameraViewDelegate> *)[self delegate] _setSwipeToModeSwitchEnabled:YES];
 	%orig;
 }
 
@@ -205,9 +199,9 @@ MSHook(SInt32, MGGetSInt32Answer, CFStringRef string)
 BOOL is_mediaserverd()
 {
 	NSArray *args = [[NSClassFromString(@"NSProcessInfo") processInfo] arguments];
-	NSUInteger count = [args count];
+	NSUInteger count = args.count;
 	if (count != 0) {
-		NSString *executablePath = [args objectAtIndex:0];
+		NSString *executablePath = args[0];
 		return [[executablePath lastPathComponent] isEqualToString:@"mediaserverd"];
 	}
 	return NO;

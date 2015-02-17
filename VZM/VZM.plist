@@ -64,7 +64,7 @@ If the factor is set incorrectly, like 0.0x, the tweak will change it to 5.0x (t
         <key>footerAlignment</key>
         <integer>1</integer>
         <key>footerText</key>
-        <string>© 2013 - 2014 Thatchapon Unprasert
+        <string>© 2013 - 2015 Thatchapon Unprasert
 (@PoomSmart)</string>
       </dict>
     </array>
