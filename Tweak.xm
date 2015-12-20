@@ -213,17 +213,23 @@ BOOL is_mediaserverd()
 	%init(FigCaptureSourceFormat);
 	if (!is_mediaserverd()) {
 		dlopen("/System/Library/Frameworks/AVFoundation.framework/AVFoundation", RTLD_LAZY);
-		dlopen("/System/Library/PrivateFrameworks/PhotoLibrary.framework/PhotoLibrary", RTLD_LAZY);
-		dlopen("/System/Library/PrivateFrameworks/CameraKit.framework/CameraKit", RTLD_LAZY);
+		if (isiOS9Up)
+			dlopen("/System/Library/PrivateFrameworks/CameraUI.framework/CameraUI", RTLD_LAZY);
+		else if (isiOS8)
+			dlopen("/System/Library/PrivateFrameworks/CameraKit.framework/CameraKit", RTLD_LAZY);
+		else
+			dlopen("/System/Library/PrivateFrameworks/PhotoLibrary.framework/PhotoLibrary", RTLD_LAZY);
 		MSHookFunction(MGGetSInt32Answer, MSHake(MGGetSInt32Answer));
-		if (isiOS8Up) {
+		if (isiOS8) {
 			%init(AVCaptureDeviceFormat_FigRecorder);
 			%init(CAMCaptureController);
 			%init(CAMCameraView);
 		} else {
-			%init(AVCaptureDeviceFormat_pre8);
-			%init(PLCameraController);
-			%init(PLCameraView);
+			if (!isiOS9Up) {
+				%init(AVCaptureDeviceFormat_pre8);
+				%init(PLCameraController);
+				%init(PLCameraView);
+			}
 		}
 		%init(AVCaptureDeviceFormat);
 		%init(CAMZoomSlider);
