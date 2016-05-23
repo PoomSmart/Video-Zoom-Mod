@@ -1,7 +1,8 @@
-SDKVERSION = 7.0
+DEBUG = 0
+GO_EASY_ON_ME = 1
 ARCHS = armv7 arm64
 
-include theos/makefiles/common.mk
+include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = VideoZoomEnabler
 VideoZoomEnabler_FILES = Tweak.xm

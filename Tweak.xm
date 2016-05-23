@@ -16,7 +16,7 @@ static CGFloat videoMaxZoomFactor()
 	return 5.0f;
 }
 
-%group AVCaptureDeviceFormat_pre8
+%group preiOS8
 
 %hook AVCaptureDeviceFormat
 
@@ -26,52 +26,6 @@ static CGFloat videoMaxZoomFactor()
 }
 
 %end
-
-%end
-
-%group AVCaptureDeviceFormat
-
-%hook AVCaptureDeviceFormat
-
-- (BOOL)supportsDynamicCrop
-{
-	return YES;
-}
-
-- (CGFloat)videoMaxZoomFactor
-{
-	return videoMaxZoomFactor();
-}
-
-%end
-
-%end
-
-%group AVCaptureDeviceFormat_FigRecorder
-
-%hook AVCaptureDeviceFormat_FigRecorder
-
-- (BOOL)supportsDynamicCrop
-{
-	return YES;
-}
-
-- (BOOL)supportsVideoZoom
-{
-	return YES;
-}
-
-- (CGFloat)videoMaxZoomFactor
-{
-	return videoMaxZoomFactor();
-}
-
-
-%end
-
-%end
-
-%group PLCameraController
 
 %hook PLCameraController
 
@@ -86,28 +40,6 @@ static CGFloat videoMaxZoomFactor()
 }
 
 %end
-
-%end
-
-%group CAMCaptureController
-
-%hook CAMCaptureController
-
-- (CGFloat)maximumZoomFactorForDevice:(id)device
-{
-	return videoMaxZoomFactor();
-}
-
-- (CGFloat)minimumZoomFactorForDevice:(id)device
-{
-	return 1.0f;
-}
-
-%end
-
-%end
-
-%group PLCameraView
 
 %hook PLCameraView
 
@@ -126,7 +58,40 @@ static CGFloat videoMaxZoomFactor()
 
 %end
 
-%group CAMCameraView
+%group iOS8
+
+%hook AVCaptureDeviceFormat_FigRecorder
+
+- (BOOL)supportsDynamicCrop
+{
+	return YES;
+}
+
+- (BOOL)supportsVideoZoom
+{
+	return YES;
+}
+
+- (CGFloat)videoMaxZoomFactor
+{
+	return videoMaxZoomFactor();
+}
+
+%end
+
+%hook CAMCaptureController
+
+- (CGFloat)maximumZoomFactorForDevice:(id)device
+{
+	return videoMaxZoomFactor();
+}
+
+- (CGFloat)minimumZoomFactorForDevice:(id)device
+{
+	return 1.0f;
+}
+
+%end
 
 %hook CAMCameraView
 
@@ -145,7 +110,21 @@ static CGFloat videoMaxZoomFactor()
 
 %end
 
-%group CAMZoomSlider
+%group Common
+
+%hook AVCaptureDeviceFormat
+
+- (BOOL)supportsDynamicCrop
+{
+	return YES;
+}
+
+- (CGFloat)videoMaxZoomFactor
+{
+	return videoMaxZoomFactor();
+}
+
+%end
 
 %hook CAMZoomSlider
 
@@ -167,7 +146,7 @@ static CGFloat videoMaxZoomFactor()
 
 %end
 
-%group FigCaptureSourceFormat
+%group mediaserverd
 
 %hook FigCaptureSourceFormat
 
@@ -210,7 +189,7 @@ BOOL is_mediaserverd()
 %ctor
 {
 	dlopen("/System/Library/PrivateFrameworks/Celestial.framework/Celestial", RTLD_LAZY);
-	%init(FigCaptureSourceFormat);
+	%init(mediaserverd);
 	if (!is_mediaserverd()) {
 		dlopen("/System/Library/Frameworks/AVFoundation.framework/AVFoundation", RTLD_LAZY);
 		if (isiOS9Up)
@@ -220,18 +199,13 @@ BOOL is_mediaserverd()
 		else
 			dlopen("/System/Library/PrivateFrameworks/PhotoLibrary.framework/PhotoLibrary", RTLD_LAZY);
 		MSHookFunction(MGGetSInt32Answer, MSHake(MGGetSInt32Answer));
-		if (isiOS8) {
-			%init(AVCaptureDeviceFormat_FigRecorder);
-			%init(CAMCaptureController);
-			%init(CAMCameraView);
-		} else {
-			if (!isiOS9Up) {
-				%init(AVCaptureDeviceFormat_pre8);
-				%init(PLCameraController);
-				%init(PLCameraView);
+		if (!isiOS9Up) {
+			if (isiOS8) {
+				%init(iOS8);
+			} else {
+				%init(preiOS8);
 			}
 		}
-		%init(AVCaptureDeviceFormat);
-		%init(CAMZoomSlider);
+		%init(Common);
 	}
 }
